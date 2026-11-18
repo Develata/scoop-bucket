@@ -53,9 +53,14 @@ function Set-TestManifest {
 function Get-AppDir([string] $App) { Join-Path $scoopRoot "apps\$App" }
 function Get-PersistNote([string] $App, [string] $Leaf = 'note') { Join-Path $scoopRoot "persist\$App\$Leaf" }
 
+# Scoop saves the installed manifest as scoop-manifest.json (manifest.json before) only once an
+# install has finished, so a failed install reports no version.
 function Get-InstalledVersion([string] $App) {
-    $installed = Join-Path (Get-AppDir $App) 'current\manifest.json'
-    if (Test-Path -LiteralPath $installed) { (Get-Content -LiteralPath $installed -Raw | ConvertFrom-Json).version } else { $null }
+    foreach ($leaf in 'scoop-manifest.json', 'manifest.json') {
+        $installed = Join-Path (Get-AppDir $App) "current\$leaf"
+        if (Test-Path -LiteralPath $installed) { return (Get-Content -LiteralPath $installed -Raw | ConvertFrom-Json).version }
+    }
+    $null
 }
 
 # Every entry below the root, sorted ordinally: directories by name, files with their SHA-256
