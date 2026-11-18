@@ -1,0 +1,37 @@
+name: StickyMD note carry-over
+
+on:
+  push:
+    paths:
+      - 'bucket/stickymd.json'
+      - '.github/scripts/stickymd-data.ps1'
+      - '.github/workflows/stickymd.yml'
+  pull_request:
+    paths:
+      - 'bucket/stickymd.json'
+      - '.github/scripts/stickymd-data.ps1'
+      - '.github/workflows/stickymd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  carry-over:
+    name: Carry-over (${{ matrix.shell }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [powershell, pwsh]
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - name: Checkout Bucket
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Scoop
+        run: |
+          Invoke-Expression "& {$(Invoke-RestMethod -Uri 'https://get.scoop.sh')} -RunAsAdmin"
+      - name: Check note carry-over
+        run: .\.github\scripts\stickymd-data.ps1

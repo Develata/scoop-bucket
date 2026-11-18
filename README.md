@@ -9,6 +9,7 @@
 ```pwsh
 scoop bucket add develata https://github.com/Develata/scoop-bucket
 scoop install develata/rss-reader
+scoop install develata/stickymd
 ```
 
 ## Manifests
@@ -16,8 +17,11 @@ scoop install develata/rss-reader
 | Manifest | Software | Provides |
 | --- | --- | --- |
 | [`rss-reader`](bucket/rss-reader.json) | [RSS-Reader](https://github.com/Develata/RSS-Reader) | Start menu shortcut `RSS-Reader`, command `rssr` |
+| [`stickymd`](bucket/stickymd.json) | [StickyMD](https://github.com/Develata/StickyMD) | Start menu shortcut `StickyMD` |
 
 RSS-Reader keeps its library in a `RSS-Reader` folder next to the executables. The manifest persists that whole folder, so the desktop app and `rssr` share one library and it survives `scoop update` and `scoop uninstall` (without `--purge`). Quit both before updating.
+
+StickyMD keeps its note, settings and images in a `note` folder next to `StickyMD.exe` and refuses to start if that folder is a junction, so its manifest does not use `persist`. Instead, whenever `scoop update` or `scoop uninstall` removes a version, `pre_uninstall` copies the folder to `persist\stickymd\note` (the copy before it stays in `note.previous`), and `pre_install` copies it into the next version. Quit StickyMD from its tray menu first: the hook refuses to copy while StickyMD runs. The [StickyMD workflow](.github/workflows/stickymd.yml) checks this with real releases, including failing hooks.
 
 ## Updates
 
